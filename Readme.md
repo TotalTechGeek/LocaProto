@@ -4,6 +4,8 @@ This is a small JavaScript utility for allowing different browser tabs to commun
 
 ## Usage
 ---
+In order to use this utility, you must be able to pass an ID from the master page to the slave page. By default, you can pass it by using the fragment identifier.
+
 ```js 
 // Sets up the master id, and pages.
 // Slave pages must have the fragment identifier set to the id. 
@@ -21,6 +23,21 @@ And on the slave
 ```js
 LocaProto.slave()
 LocaProto.send('data', 'Hello World')
+```
+
+If you would like to modify how it is received by the slave page, you simply need to pass a function into the "LocaProto.slave" call. There is a built in query string utility (over the '?' in the url), if you'd prefer to parse it over that.
+
+```js
+// Uses the entire query string as id. 
+LocaProto.slave(LocaProto.fromQueryString)
+```
+
+or 
+
+```js 
+// This would parse the query string and get whatever "loca=<var>" is inside the string.
+// So example.com/?loca=blah&thing=7 will parse 'blah' correctly. 
+LocaProto.slave(LocaProto.fromQueryString('loca'))
 ```
 
 ## Example 
