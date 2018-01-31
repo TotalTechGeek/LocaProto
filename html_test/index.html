@@ -1,0 +1,31 @@
+<script src="../locaproto.js"></script>
+<body>
+    
+    First Name: <input id="first"/> <br>
+    Last Name: <input id="last"/> <br>
+    Age: <input id="age"/> <br>
+    Gender: <input id="gender"/> <br>
+    <br>
+
+    <button id="openFormButton">Open Other Form</button>
+    
+    <script>
+        LocaProto.master(function(id)
+        {
+            document.getElementById('openFormButton').onclick = function()
+            {
+                window.open("formB.html" + '#' + id)
+            }
+        })
+
+        LocaProto.on('data', function(x)
+        {
+            // Go through each key in the object and set values.
+            Object.keys(x).forEach(i =>
+            {
+                // i is the key, like "first" or "last".
+                document.getElementById(i).value = x[i]
+            })
+        })
+    </script>
+</body>

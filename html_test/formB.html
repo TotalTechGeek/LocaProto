@@ -1,0 +1,30 @@
+<script src="../locaproto.js"></script>
+<body>
+
+    Jesse Mitchell, 20, Male <button onclick="send('Jesse', 'Mitchell', 20, 'M')">Send</button> <br>
+
+    John Doe, 19, Male <button onclick="send('John', 'Doe', 19, 'M')">Send</button> <br>
+    
+    Jane Doe, 13, Female <button onclick="send('Jane', 'Doe', 13, 'F')">Send</button> <br>
+
+    Ping Xin, ???, Male <button onclick="send('Ping', 'Xin', '???', 'M')">Send</button> <br>
+    
+    <br>
+    <script>
+        LocaProto.slave()
+        function send(first, last, age, gender)
+        {
+            // Sends the data.
+            LocaProto.send('data', 
+            {
+                first: first,
+                last: last,
+                age: age,
+                gender: gender
+            })
+
+            // closes the window.
+            close()
+        }
+    </script>
+</body>

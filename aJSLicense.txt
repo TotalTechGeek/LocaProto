@@ -1,0 +1,8 @@
+/*! 
+ * LocaProto
+ * 
+ * Copyright 2018, Jesse Daniel Mitchell
+ * Released under the MIT license.
+ *
+ * Date: 2018-01-30T23:26:54.214Z
+ */
