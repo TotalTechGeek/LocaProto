@@ -17,6 +17,31 @@ LocaProto._random = function()
 }
 
 /**
+ * This is a utility function to make it easier to acquire the slave id from the query string.
+ * @param {string} name - The value in the query string to pull from. If unspecified, it'll just use the entire query string.
+ */
+LocaProto.fromQueryString = function(name)
+{
+    function getUrlParameter(name) 
+    {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    if (name)
+    {
+        return () => { getUrlParameter(name) }
+    }
+    else
+    {
+        // Defaults to just giving you the entire query string.
+        return location.search.substring(1)
+    }
+}
+
+/**
  * Cancels all channels being listened to.
  */
 LocaProto.cancel = LocaProto.clear = function()
@@ -53,11 +78,20 @@ LocaProto.master = function(callback)
 
 /**
  * Parses the uri to determine what channels to talk to. 
+ * @param {function} func - executed to get the id param. Defaults to getting it from the fragment identifier.
  * @param {function} callback - executed with the id param. Can be used to modify page references with the id.  
  */
-LocaProto.slave = function(callback)
+LocaProto.slave = function(func, callback)
 {
-    LocaProto.id = window.location.hash.substring(1) 
+    if (func && typeof func === "function")
+    {
+        LocaProto.id = func()
+    }
+    else
+    {
+        LocaProto.id = window.location.hash.substring(1)
+    }
+
     LocaProto._init(callback)
 }
 
