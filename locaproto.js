@@ -32,7 +32,7 @@ LocaProto.fromQueryString = function(name)
 
     if (name)
     {
-        return () => { getUrlParameter(name) }
+        return () => getUrlParameter(name) 
     }
     else
     {
