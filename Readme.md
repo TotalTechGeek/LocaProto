@@ -51,14 +51,22 @@ If you want to easily minify this project, and you have Node.js installed, you c
 
 This will produce a minified and license-compliant script.
 
-## Notes
+## Implementation Notes
 
 The project currently has two modes of transport, depending on browser support. 
 
 The first uses [BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API), which is supported in newer versions of Firefox, Chrome and Opera.  
 
-If BroadcastChannel is not supported, the library will use localStorage to pipe communications between the tabs on the same domain. While this is a slight hack, it is a much cleaner solution than trying to pipe the data through a server using AJAX queries.  
+If BroadcastChannel is not supported, the library will attempt to use the HTML5 postMessage event handling API that is supported in most browsers. All events will be restricted to the same domain, in order to mitigate any potential XSS attacks.
 
-This additional mode of transport guarantees that the library will work across all HTML5-compliant web browsers, as long as they are not being run in incognito mode.
+If the following line is executed 
+
+```js
+LocaProto.forceLocalStorage = true
+```
+
+The library will attempt to use localStorage to pipe communications between the tabs. While this is a slight hack, it is a much cleaner solution than trying to pipe the data through a server using AJAX queries.  
+
+This additional modes of transport should guarantee that the library will work across all HTML5-compliant web browsers.
 
 I might end up adding new fallback mechanisms in the future.

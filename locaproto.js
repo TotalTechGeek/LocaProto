@@ -10,6 +10,8 @@
 var LocaProto = {}
 LocaProto.listened = [] 
 LocaProto._channels = {}
+LocaProto._windowListened = false
+LocaProto.forceLocalStorage = false
 LocaProto.broadcast = (typeof BroadcastChannel !== "undefined")
 
 // It is not advised to call this.
@@ -133,16 +135,68 @@ LocaProto.on = function(name, func)
         bc.onmessage = i => func(JSON.parse(i.data))
     }
 
+    /**
+     * Listens to window.postMessage events
+     */
+    function listenerSetup()
+    {
+        let eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
+        let eventer = window[eventMethod];
+        let messageEvent = eventMethod == 'attachEvent' ? 'onmessage' : 'message';
+        
+        LocaProto._windowListened = true
+
+        // Listen to message from child window
+        eventer(messageEvent, function(e) 
+        {
+            let key = e.message ? 'message' : 'data';
+            let data = e[key];
+
+            // Security purposes
+            if(document.location.origin !== e.origin) return
+            
+            try 
+            {
+                data = JSON.parse(data)
+                if(data.channel && LocaProto._channels[data.channel])
+                {
+                    LocaProto._channels[data.channel](data.data)
+                }
+            } catch(ex) 
+            {
+
+            }
+        }, false)
+    }
+
+    /**
+     * Allows the library to respond to window.postMessage events with channels.
+     * @param {*} name 
+     * @param {*} func 
+     */
+    function windowListen(name, func)
+    {
+        if(!LocaProto._windowListened) listenerSetup()
+        LocaProto._channels[name] = func
+    }
+
+
     name = LocaProto.id + '-' + name
 
+    if(LocaProto.forceLocalStorage)
+    {
+        // Uses the localStorage (if user requests it)
+        localStorageListen(name, func)
+    }
     if(LocaProto.broadcast)
     {
+        // uses Broadcast Channel
         broadcastListen(name, func)
     }
     else
     {
-        // Falls back onto local storage
-        localStorageListen(name, func)
+        // Falls back onto window post message listener
+        windowListen(name, func)
     }
 }
 
@@ -155,14 +209,19 @@ LocaProto.send = function(name, data)
 {
     name = LocaProto.id + '-' + name
     
-    if(LocaProto.broadcast)
+    if(LocaProto.forceLocalStorage)
+    {
+        // uses local storage
+        localStorage[name] = JSON.stringify(data)
+    }
+    else if(LocaProto.broadcast)
     {
         if(!LocaProto._channels[name]) LocaProto._channels[name] = new BroadcastChannel(name)
         LocaProto._channels[name].postMessage(JSON.stringify(data))
     }
     else
     {
-        // falls back on local storage
-        localStorage[name] = JSON.stringify(data)
+        // falls back on window post message
+        window.opener.postMessage(JSON.stringify({ data: data, channel: name }), '*')
     }
 }
