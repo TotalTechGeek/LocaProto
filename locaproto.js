@@ -9,8 +9,10 @@
 
 var LocaProto = {}
 LocaProto.listened = [] 
+LocaProto._channels = {}
+LocaProto.broadcast = (typeof BroadcastChannel !== "undefined")
 
-// Do not call this.
+// It is not advised to call this.
 LocaProto._random = function()
 {
     return (Math.random()*1e9).toString(36).replace(/\./g, "")
@@ -102,16 +104,47 @@ LocaProto.slave = function(func, callback)
  */
 LocaProto.on = function(name, func)
 {
-    LocaProto.listened.push(setInterval(function()
+    /**
+     * Listens to the channel using Local Storage
+     * @param {*} name 
+     * @param {*} func 
+     */
+    function localStorageListen(name, func)
     {
-        if(localStorage[LocaProto.id + "-" + name]) 
+        LocaProto.listened.push(setInterval(function()
         {
-            func(JSON.parse(localStorage[LocaProto.id + "-" + name]))
-            localStorage.removeItem(LocaProto.id + "-" + name)
-        }
-    }, 250))
-}
+            if(localStorage[name]) 
+            {
+                func(JSON.parse(localStorage[name]))
+                localStorage.removeItem(name)
+            }
+        }, 250))
+    }
 
+    /**
+     * Listens to the channel using "Broadcast Channel"
+     * @param {*} name 
+     * @param {*} func 
+     */
+    function broadcastListen(name, func)
+    {
+        let bc = new BroadcastChannel(name)
+        LocaProto._channels[name] = bc
+        bc.onmessage = i => func(JSON.parse(i.data))
+    }
+
+    name = LocaProto.id + '-' + name
+
+    if(LocaProto.broadcast)
+    {
+        broadcastListen(name, func)
+    }
+    else
+    {
+        // Falls back onto local storage
+        localStorageListen(name, func)
+    }
+}
 
 /**
  * Sends data to a channel.
@@ -120,5 +153,16 @@ LocaProto.on = function(name, func)
  */
 LocaProto.send = function(name, data)
 {
-    localStorage[LocaProto.id + "-" + name] = JSON.stringify(data)
+    name = LocaProto.id + '-' + name
+    
+    if(LocaProto.broadcast)
+    {
+        if(!LocaProto._channels[name]) LocaProto._channels[name] = new BroadcastChannel(name)
+        LocaProto._channels[name].postMessage(JSON.stringify(data))
+    }
+    else
+    {
+        // falls back on local storage
+        localStorage[name] = JSON.stringify(data)
+    }
 }
