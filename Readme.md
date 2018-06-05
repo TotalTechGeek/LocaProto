@@ -51,8 +51,14 @@ If you want to easily minify this project, and you have Node.js installed, you c
 
 This will produce a minified and license-compliant script.
 
-## Caveat
+## Notes
 
-The project currently uses HTML5 localStorage briefly to pipe the communications, and while this is not an ideal mode of transport, it is far better than the weird back-end hacks I've seen involving temporary database records and incessant AJAX queries. 
+The project currently has two modes of transport, depending on browser support. 
 
-Additionally, Using this mode of transport guarantees it will work across all HTML5-compliant web browsers, while other methods (like window.postMessage) aren't necessarily completely standardized.
+The first uses [BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API), which is supported in newer versions of Firefox, Chrome and Opera.  
+
+If BroadcastChannel is not supported, the library will use localStorage to pipe communications between the tabs on the same domain. While this is a slight hack, it is a much cleaner solution than trying to pipe the data through a server using AJAX queries.  
+
+This additional mode of transport guarantees that the library will work across all HTML5-compliant web browsers, as long as they are not being run in incognito mode.
+
+I might end up adding new fallback mechanisms in the future.
