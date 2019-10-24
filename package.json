@@ -1,16 +1,16 @@
 {
   "name": "locaproto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Makes it easy for slave pages to communicate with a master",
   "main": "locaproto.js",
   "scripts": {
-    "build": "mkdirp build && minify locaproto.js -o build/locaproto.min.js && file-merge -i **/aJSLicense.txt,**/build/locaproto.min.js -o build/locaproto.min.js"
+    "build": "mkdirp build && minify locaproto.js -o build/locaproto.min.js && concat -o build/locaproto.min.js aJSLicense.txt build/locaproto.min.js"
   },
   "author": "Jesse Mitchell",
   "license": "MIT",
   "devDependencies": {
     "babel-minify": "^0.2.0",
-    "file-merge": "^1.0.0",
+    "concat": "^1.0.3",
     "mkdirp": "^0.5.1"
   }
 }
